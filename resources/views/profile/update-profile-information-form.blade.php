@@ -52,6 +52,48 @@
             </div>
         @endif
 
+        <!-- Another photo -->
+        <div x-data="{pictureName: null, picturePreview: null}" class="col-span-6 sm:col-span-4">
+            <!-- Profile picture File Input -->
+            <input type="file" class="hidden"
+                        wire:model="picture"
+                        x-ref="picture"
+                        x-on:change="
+                                pictureName = $refs.picture.files[0].name;
+                                const reader = new FileReader();
+                                reader.onload = (e) => {
+                                    picturePreview = e.target.result;
+                                };
+                                reader.readAsDataURL($refs.picture.files[0]);
+                        " />
+
+            <x-jet-label for="picture" value="{{ __('picture') }}" />
+
+            <!-- Current Profile picture -->
+            <div class="mt-2" x-show="! picturePreview">
+                <img src="{{ $this->user->profile_picture_url }}" alt="{{ $this->user->name }}" class="rounded-full h-20 w-20 object-cover">
+            </div>
+
+            <!-- New Profile picture Preview -->
+            <div class="mt-2" x-show="picturePreview">
+                <span class="block rounded-full w-20 h-20"
+                      x-bind:style="'background-size: cover; background-repeat: no-repeat; background-position: center center; background-image: url(\'' + picturePreview + '\');'">
+                </span>
+            </div>
+
+            <x-jet-secondary-button class="mt-2 mr-2" type="button" x-on:click.prevent="$refs.picture.click()">
+                {{ __('Select A New picture') }}
+            </x-jet-secondary-button>
+
+            @if ($this->user->profile_picture_path)
+                <x-jet-secondary-button type="button" class="mt-2" wire:click="deleteProfilepicture">
+                    {{ __('Remove picture') }}
+                </x-jet-secondary-button>
+            @endif
+
+            <x-jet-input-error for="picture" class="mt-2" />
+        </div>
+
         <!-- Name -->
         <div class="col-span-6 sm:col-span-4">
             <x-jet-label for="name" value="{{ __('Name') }}" />
